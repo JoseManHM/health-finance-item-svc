@@ -1,5 +1,7 @@
 package com.healthitemsvc.item.Services.Impl;
 
+import com.healthitemsvc.item.DTO.AddItemDataDTO;
+import com.healthitemsvc.item.DTO.ResponseBasicDTO;
 import com.healthitemsvc.item.Repository.CategoriasRepository;
 import com.healthitemsvc.item.Repository.CuentasRepository;
 import com.healthitemsvc.item.Repository.UsuariosRepository;
@@ -31,5 +33,20 @@ public class ItemServiceImpl implements ItemService {
             System.out.println(error);
         }
         return respuesta;
+    }
+
+    @Override
+    public ResponseBasicDTO agregarItem(AddItemDataDTO itemData){
+        ResponseBasicDTO response = new ResponseBasicDTO();
+        try{
+
+        }catch (Exception e){
+            String error = "Ocurrio un error al guardar el item: " + e.getMessage();
+            System.out.println(error);
+            log.error(error);
+            response.setStatus(-1);
+            response.setMensaje(error);
+        }
+        return response;
     }
 }

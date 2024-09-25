@@ -32,4 +32,7 @@ public class Items {
     @OneToOne
     @JoinColumn(name = "id")
     private Usuarios usuario_id;
+    @NotNull
+    @PositiveOrZero
+    private int ingreso_egreso;
 }
