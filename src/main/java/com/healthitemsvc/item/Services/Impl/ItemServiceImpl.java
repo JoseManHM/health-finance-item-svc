@@ -39,7 +39,27 @@ public class ItemServiceImpl implements ItemService {
     public ResponseBasicDTO agregarItem(AddItemDataDTO itemData){
         ResponseBasicDTO response = new ResponseBasicDTO();
         try{
+            if(categoriasRepository.existsCategory(itemData.getIdCategoria(), itemData.getIdUsuario())){
+                if(cuentasRepository.existsAccount(itemData.getId_cuenta(), itemData.getIdUsuario())){
+                    if(usuariosRepository.existsById(itemData.getIdUsuario())){
+                        //Egreso
+                        if(itemData.getIngresoEgreso() == 0){
 
+                        }else{//Ingreso
+
+                        }
+                    }else{
+                        response.setStatus(0);
+                        response.setMensaje("El usuario asociado al item no existe");
+                    }
+                }else{
+                    response.setStatus(0);
+                    response.setMensaje("La cuenta asociada al item no existe");
+                }
+            }else{
+                response.setStatus(0);
+                response.setMensaje("La categoria asociada al item no existe");
+            }
         }catch (Exception e){
             String error = "Ocurrio un error al guardar el item: " + e.getMessage();
             System.out.println(error);
