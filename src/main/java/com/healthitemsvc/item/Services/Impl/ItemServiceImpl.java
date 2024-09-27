@@ -4,8 +4,10 @@ import com.healthitemsvc.item.DTO.AddItemDataDTO;
 import com.healthitemsvc.item.DTO.ResponseBasicDTO;
 import com.healthitemsvc.item.Repository.CategoriasRepository;
 import com.healthitemsvc.item.Repository.CuentasRepository;
+import com.healthitemsvc.item.Repository.ItemsRepository;
 import com.healthitemsvc.item.Repository.UsuariosRepository;
 import com.healthitemsvc.item.Services.ItemService;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,8 @@ public class ItemServiceImpl implements ItemService {
     CategoriasRepository categoriasRepository;
     @Autowired
     CuentasRepository cuentasRepository;
+    @Autowired
+    ItemsRepository itemsRepository;
 
     @Override
     public String pruebaConexion(){
@@ -35,6 +39,7 @@ public class ItemServiceImpl implements ItemService {
         return respuesta;
     }
 
+    @Transactional
     @Override
     public ResponseBasicDTO agregarItem(AddItemDataDTO itemData){
         ResponseBasicDTO response = new ResponseBasicDTO();
@@ -44,9 +49,15 @@ public class ItemServiceImpl implements ItemService {
                     if(usuariosRepository.existsById(itemData.getIdUsuario())){
                         //Egreso
                         if(itemData.getIngresoEgreso() == 0){
-
+                            cuentasRepository.restarCantidadCuenta(itemData.getCantidad(), itemData.getId_cuenta(), itemData.getIdUsuario());
+                            itemsRepository.saveItem(itemData.getCantidad(), itemData.getIdCategoria(), itemData.getId_cuenta(), itemData.getComentarios(), itemData.getIdUsuario(), itemData.getIngresoEgreso());
+                            response.setStatus(1);
+                            response.setMensaje("Item de egreso agreado correctamente");
                         }else{//Ingreso
-
+                            cuentasRepository.sumarCantidadCuenta(itemData.getCantidad(), itemData.getId_cuenta(), itemData.getIdUsuario());
+                            itemsRepository.saveItem(itemData.getCantidad(), itemData.getIdCategoria(), itemData.getId_cuenta(), itemData.getComentarios(), itemData.getIdUsuario(), itemData.getIngresoEgreso());
+                            response.setStatus(1);
+                            response.setMensaje("Item de ingreso agreado correctamente");
                         }
                     }else{
                         response.setStatus(0);
