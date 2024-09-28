@@ -3,6 +3,7 @@ package com.healthitemsvc.item.Controllers;
 import com.healthitemsvc.item.DTO.AddItemDataDTO;
 import com.healthitemsvc.item.DTO.ApiResponseDTO;
 import com.healthitemsvc.item.DTO.ResponseBasicDTO;
+import com.healthitemsvc.item.DTO.UpdateItemDataDTO;
 import com.healthitemsvc.item.Services.ItemService;
 import com.healthitemsvc.item.Util.Meta;
 import jakarta.validation.Valid;
@@ -35,6 +36,18 @@ public class ItemController {
             return new ApiResponseDTO(metaNotFound, responseAddItem.getMensaje());
         }else{
             return new ApiResponseDTO(metaServerError, responseAddItem.getMensaje());
+        }
+    }
+
+    @PutMapping("/operation")
+    public ApiResponseDTO modificarItem(@RequestBody @Valid UpdateItemDataDTO itemData){
+        ResponseBasicDTO responseUpdateItem = itemService.modificarItem(itemData);
+        if(responseUpdateItem.getStatus() == 1){
+            return new ApiResponseDTO(metaOk, responseUpdateItem.getMensaje());
+        }else if(responseUpdateItem.getStatus() == 0){
+            return new ApiResponseDTO(metaNotFound, responseUpdateItem.getMensaje());
+        }else{
+            return new ApiResponseDTO(metaServerError, responseUpdateItem.getMensaje());
         }
     }
 }

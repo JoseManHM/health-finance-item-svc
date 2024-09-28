@@ -1,7 +1,9 @@
 package com.healthitemsvc.item.Services.Impl;
 
 import com.healthitemsvc.item.DTO.AddItemDataDTO;
+import com.healthitemsvc.item.DTO.GetMontoIngresoEgresoOriginalDataProjection;
 import com.healthitemsvc.item.DTO.ResponseBasicDTO;
+import com.healthitemsvc.item.DTO.UpdateItemDataDTO;
 import com.healthitemsvc.item.Repository.CategoriasRepository;
 import com.healthitemsvc.item.Repository.CuentasRepository;
 import com.healthitemsvc.item.Repository.ItemsRepository;
@@ -77,6 +79,53 @@ public class ItemServiceImpl implements ItemService {
             log.error(error);
             response.setStatus(-1);
             response.setMensaje(error);
+        }
+        return response;
+    }
+
+    @Transactional
+    @Override
+    public ResponseBasicDTO modificarItem(UpdateItemDataDTO itemData){
+        ResponseBasicDTO response = new ResponseBasicDTO();
+        try{
+            if(categoriasRepository.existsCategory(itemData.getIdCategoria(), itemData.getIdUsuario())){
+                if(cuentasRepository.existsAccount(itemData.getIdCuenta(), itemData.getIdUsuario())){
+                    if(itemsRepository.existItemActive(itemData.getId(), itemData.getIdUsuario())){
+                        //Obtener info original de item
+                        GetMontoIngresoEgresoOriginalDataProjection dataOriginal = itemsRepository.obtenerMontoIngEgrOriginal(itemData.getId(), itemData.getIdUsuario());
+                        //Regresar monto a estado anterior a la transaccion
+                        if(dataOriginal.getIngresoEgreso() == 0){
+                            cuentasRepository.sumarCantidadCuenta(dataOriginal.getMonto(), dataOriginal.getIdCuenta(), itemData.getIdUsuario());
+                        }else{
+                            cuentasRepository.restarCantidadCuenta(dataOriginal.getMonto(), dataOriginal.getIdCuenta(), itemData.getIdUsuario());
+                        }
+                        //Realizar actualización y resta/suma a cuenta
+                        if(itemData.getIngresoegreso() == 0){
+                            cuentasRepository.restarCantidadCuenta(itemData.getCantidad(), itemData.getIdCuenta(), itemData.getIdUsuario());
+                        }else{
+                            cuentasRepository.sumarCantidadCuenta(itemData.getCantidad(), itemData.getIdCuenta(), itemData.getIdUsuario());
+                        }
+                        itemsRepository.updateItem(itemData.getCantidad(), itemData.getIdCategoria(), itemData.getIdCuenta(), itemData.getComentarios(), itemData.getIngresoegreso(), itemData.getId(), itemData.getIdUsuario());
+                        response.setStatus(1);
+                        response.setMensaje("EL item se ha actualizado correctamente");
+                    }else{
+                        response.setStatus(0);
+                        response.setMensaje("El item que se quiere actualizar no existe");
+                    }
+                }else{
+                    response.setStatus(0);
+                    response.setMensaje("La cuenta asociada al item no existe o se encuentra inactiva");
+                }
+            }else{
+                response.setStatus(0);
+                response.setMensaje("La categoria asociada al item no existe o se encuentra inactiva y/o el usuario no existe");
+            }
+        }catch (Exception e){
+            String mensajeError = "Ocurrio un error al modificar el item, error: " + e.getMessage();
+            System.out.println(mensajeError);
+            log.error(mensajeError);
+            response.setStatus(-1);
+            response.setMensaje(mensajeError);
         }
         return response;
     }
