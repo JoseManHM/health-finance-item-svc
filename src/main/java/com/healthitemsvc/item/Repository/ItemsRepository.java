@@ -28,4 +28,9 @@ public interface ItemsRepository extends JpaRepository<Items, Integer>{
 
     @Query(value = "SELECT CASE WHEN COUNT(i) > 0 THEN true ELSE false END FROM item i WHERE id = :id AND id_usuario = :usuario AND activo = 0", nativeQuery = true)
     boolean existItemActive(@Param("id") int id, @Param("usuario") int usuario);
+
+    @Transactional
+    @Modifying(clearAutomatically = true)
+    @Query(value = "UPDATE item SET activo = 1 WHERE id = :id AND id_usuario = :usuario AND activo = 0", nativeQuery = true)
+    void deleteItem(@Param("id") int id, @Param("usuario") int usuario);
 }

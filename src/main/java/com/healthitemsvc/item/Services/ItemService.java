@@ -10,4 +10,5 @@ public interface ItemService {
     String pruebaConexion();
     ResponseBasicDTO agregarItem(AddItemDataDTO itemData);
     ResponseBasicDTO modificarItem(UpdateItemDataDTO itemData);
+    ResponseBasicDTO eliminarItem(int id, int idUsuario);
 }

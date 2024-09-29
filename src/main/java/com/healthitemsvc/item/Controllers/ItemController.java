@@ -50,4 +50,16 @@ public class ItemController {
             return new ApiResponseDTO(metaServerError, responseUpdateItem.getMensaje());
         }
     }
+
+    @DeleteMapping("/operation/{id}/{id_usuario}")
+    public ApiResponseDTO eliminarItem(@PathVariable(name = "id") int id, @PathVariable(name = "id_usuario") int idUsuario){
+        ResponseBasicDTO responseDeleteItem = itemService.eliminarItem(id, idUsuario);
+        if(responseDeleteItem.getStatus() == 1){
+            return new ApiResponseDTO(metaOk, responseDeleteItem.getMensaje());
+        }else if(responseDeleteItem.getStatus() == 0){
+            return new ApiResponseDTO(metaNotFound, responseDeleteItem.getMensaje());
+        }else{
+            return new ApiResponseDTO(metaServerError, responseDeleteItem.getMensaje());
+        }
+    }
 }

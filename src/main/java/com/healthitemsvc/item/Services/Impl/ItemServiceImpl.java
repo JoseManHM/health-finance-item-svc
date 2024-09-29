@@ -129,4 +129,34 @@ public class ItemServiceImpl implements ItemService {
         }
         return response;
     }
+
+    @Transactional
+    @Override
+    public ResponseBasicDTO eliminarItem(int id, int idUsuario){
+        ResponseBasicDTO response = new ResponseBasicDTO();
+        try{
+            if(itemsRepository.existItemActive(id, idUsuario)){
+                //Obtener info del item para regresar estado de cuenta original
+                GetMontoIngresoEgresoOriginalDataProjection itemOriginal = itemsRepository.obtenerMontoIngEgrOriginal(id, idUsuario);
+                if(itemOriginal.getIngresoEgreso() == 0){
+                    cuentasRepository.sumarCantidadCuenta(itemOriginal.getMonto(), id, idUsuario);
+                }else{
+                    cuentasRepository.restarCantidadCuenta(itemOriginal.getMonto(), id, idUsuario);
+                }
+                itemsRepository.deleteItem(id, idUsuario);
+                response.setStatus(1);
+                response.setMensaje("El item se ha eliminado correctamente");
+            }else{
+                response.setStatus(0);
+                response.setMensaje("El item que se quiere eliminar no existe y/o el usuario no fue encontrado");
+            }
+        }catch (Exception e){
+            String errorMsg = "Ocurrio un error al intentar eliminar el item, error: " + e.getMessage();
+            System.out.println(errorMsg);
+            log.error(errorMsg);
+            response.setStatus(-1);
+            response.setMensaje(errorMsg);
+        }
+        return response;
+    }
 }
