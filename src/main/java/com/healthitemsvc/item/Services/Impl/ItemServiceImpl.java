@@ -1,9 +1,6 @@
 package com.healthitemsvc.item.Services.Impl;
 
-import com.healthitemsvc.item.DTO.AddItemDataDTO;
-import com.healthitemsvc.item.DTO.GetMontoIngresoEgresoOriginalDataProjection;
-import com.healthitemsvc.item.DTO.ResponseBasicDTO;
-import com.healthitemsvc.item.DTO.UpdateItemDataDTO;
+import com.healthitemsvc.item.DTO.*;
 import com.healthitemsvc.item.Repository.CategoriasRepository;
 import com.healthitemsvc.item.Repository.CuentasRepository;
 import com.healthitemsvc.item.Repository.ItemsRepository;
@@ -14,6 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Service
@@ -156,6 +156,40 @@ public class ItemServiceImpl implements ItemService {
             log.error(errorMsg);
             response.setStatus(-1);
             response.setMensaje(errorMsg);
+        }
+        return response;
+    }
+
+    @Override
+    public List<GetItemDetailDataProjection> obtenerDetalleItemSingle(int id, int id_usuario){
+        List<GetItemDetailDataProjection> response = new ArrayList<>();
+        try{
+            if(itemsRepository.existItemActive(id, id_usuario)){
+                response = itemsRepository.obtenerItemDetailSIngle(id, id_usuario);
+            }else{
+                throw new Exception("El ietm que se quiere consultar no existe y/o el usuario se encuentra inactivo");
+            }
+        }catch (Exception e){
+            String error = "Ocurrio un error al obtener el datelle del item, error: " + e.getMessage();
+            System.out.println(error);
+            log.error(error);
+        }
+        return response;
+    }
+
+    @Override
+    public List<GetItemDetailDataProjection> obtenerDetalleItemsMany(int idUsuario, int tipo, String fechaOrigen){
+        List<GetItemDetailDataProjection> response = new ArrayList<>();
+        try{
+            if(usuariosRepository.existsUser(idUsuario)){
+                response = itemsRepository.obtenerItemsDetailMany(idUsuario, tipo, fechaOrigen);
+            }else{
+                throw new Exception("El usuario asociado a los items no existe");
+            }
+        }catch (Exception e){
+            String errorMsg = "Ocurrio un error al obtener la lista de items, error: " + e.getMessage();
+            System.out.println(errorMsg);
+            log.error(errorMsg);
         }
         return response;
     }

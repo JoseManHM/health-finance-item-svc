@@ -1,5 +1,6 @@
 package com.healthitemsvc.item.Repository;
 
+import com.healthitemsvc.item.DTO.GetItemDetailDataProjection;
 import com.healthitemsvc.item.DTO.GetMontoIngresoEgresoOriginalDataProjection;
 import com.healthitemsvc.item.Entities.Items;
 import jakarta.transaction.Transactional;
@@ -33,4 +34,10 @@ public interface ItemsRepository extends JpaRepository<Items, Integer>{
     @Modifying(clearAutomatically = true)
     @Query(value = "UPDATE item SET activo = 1 WHERE id = :id AND id_usuario = :usuario AND activo = 0", nativeQuery = true)
     void deleteItem(@Param("id") int id, @Param("usuario") int usuario);
+
+    @Query(value = "SELECT i.id, i.cantidad, i.comentarios, i.id_categoria, c.nombre AS categoria, i.id_cuenta, cu.nombre AS cuenta, i.fecha_registro FROM item i INNER JOIN categoria c ON i.id_categoria = c.id INNER JOIN cuenta cu ON i.id_cuenta = cu.id WHERE i.id = :id AND i.activo = 0 AND i.id_usuario = :usuario LIMIT 1", nativeQuery = true)
+    List<GetItemDetailDataProjection> obtenerItemDetailSIngle(@Param("id") int id, @Param("usuario") int usuario);
+
+    @Query(value = "SELECT i.id, i.cantidad, i.comentarios, i.id_categoria, c.nombre AS categoria, i.id_cuenta, cu.nombre AS cuenta, i.fecha_registro FROM item i INNER JOIN categoria c ON i.id_categoria = c.id INNER JOIN cuenta cu ON i.id_cuenta = cu.id WHERE i.activo = 0 AND i.id_usuario = :usuario AND i.ingreso_egreso = :tipo AND i.fecha_registro BETWEEN CAST(:fechaOrigen as timestamp) AND now() ORDER BY fecha_registro DESC", nativeQuery = true)
+    List<GetItemDetailDataProjection> obtenerItemsDetailMany(@Param("usuario") int usuario, @Param("tipo") int tipo, @Param("fechaOrigen") String fechaOrigen);
 }

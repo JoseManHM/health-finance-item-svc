@@ -1,15 +1,13 @@
 package com.healthitemsvc.item.Controllers;
 
-import com.healthitemsvc.item.DTO.AddItemDataDTO;
-import com.healthitemsvc.item.DTO.ApiResponseDTO;
-import com.healthitemsvc.item.DTO.ResponseBasicDTO;
-import com.healthitemsvc.item.DTO.UpdateItemDataDTO;
+import com.healthitemsvc.item.DTO.*;
 import com.healthitemsvc.item.Services.ItemService;
 import com.healthitemsvc.item.Util.Meta;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -60,6 +58,34 @@ public class ItemController {
             return new ApiResponseDTO(metaNotFound, responseDeleteItem.getMensaje());
         }else{
             return new ApiResponseDTO(metaServerError, responseDeleteItem.getMensaje());
+        }
+    }
+
+    @GetMapping("/operation/single/{id}/{usuario}")
+    public ApiResponseDTO obtenerDetalleItemSingle(@PathVariable(name = "id") int id, @PathVariable(name = "usuario") int usuario){
+        try{
+            List<GetItemDetailDataProjection> infoItem = itemService.obtenerDetalleItemSingle(id, usuario);
+            if(!infoItem.isEmpty()){
+                return new ApiResponseDTO(metaOk, infoItem);
+            }else{
+                return new ApiResponseDTO(metaNotFound, "No se encontraron datos");
+            }
+        }catch (Exception e){
+            return new ApiResponseDTO(metaServerError, "Ocurrio un error al obtener el detalle del item: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/operation/many/{usuario}/{tipo}/{fechaOrigen}")
+    public ApiResponseDTO obtenerDetalleItemsMany(@PathVariable(name = "usuario") int usuario, @PathVariable("tipo") int tipo, @PathVariable(name = "fechaOrigen") String fechaOrigen){
+        try{
+            List<GetItemDetailDataProjection> infoItems = itemService.obtenerDetalleItemsMany(usuario, tipo, fechaOrigen);
+            if(!infoItems.isEmpty()){
+                return new ApiResponseDTO(metaOk, infoItems);
+            }else{
+                return new ApiResponseDTO(metaNotFound, "No se encontraron datos");
+            }
+        }catch (Exception e){
+            return new ApiResponseDTO(metaServerError, "Ocurrio un error al obtener la lista de items: " + e.getMessage());
         }
     }
 }
